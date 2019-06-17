@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Simulasi Tabungan</title>
+	<link rel="stylesheet" type="text/css" href="src/css/app.css">
+	<script src="/src/js/app.js"></script>
+	<script src="/src/js/jquery.min.js"></script>
+	<script src="/tabungan.js"></script>
+</head>
+<body>
+<div>
+	<img src="panda.jpg" class="picture">
+	<div>
+		<label for="nama">Nama :</label>
+		<input type="text" name="nama" id="nama">
+	</div>
+	<div>
+		<label for="usia">Usia :</label>
+		<input type="number" name="usia" id="usia">
+	</div>
+	<div>
+		<label for="uang">Uang awal :</label>
+		<input type="number" name="uang" id="uang">
+	</div>
+	<div>
+		<label for="bunga">Suku bunga per tahun :</label>
+		<input type="number" name="bunga" id="bunga">
+	</div>
+	<div>
+		<label for="lama">Lama Penyimpanan :</label>
+		<input type="number" name="lama" id="lama">
+	</div>
+	<button id="hitung">Submit</button>
+	<div id="hasil"></div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+	if(window.Worker){
+		const worker = new Worker('worker.js');
+		const history = localStorage.getItem('history');
+		$('#hasil').html(history);
+		$('#hitung').click(function(){
+			var nama = $('#nama').val();
+			var usia = $('#usia').val();
+			var uang = $('#uang').val();
+			var bunga = $('#bunga').val();
+			var lama = $('#lama').val();
+			worker.postMessage([nama, usia, uang, bunga, lama]);
+		});
+		worker.onmessage = function(e){
+			var content = "<label>Hasil Uang Akhir : " + e.data[0] + "</label><br/>";
+			content += "<label>History :</label><br/>";
+			content += "<label>" + e.data[1] + " Usia " + e.data[2] + " Tahun,</label><br/>";
+			content += "<label>Menyimpan Uang Selama " + e.data[3] + "</label><br/>";
+			$('#hasil').html(content);
+			localStorage.setItem("history", JSON.stringify(content));
+		}
+		// var tabungan = new Tabungan("debby", "12", "10000");
+		// console.log(tabungan.hitungbunga("10", "5"));
+	}
+</script>
